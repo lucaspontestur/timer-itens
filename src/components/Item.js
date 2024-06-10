@@ -3,7 +3,7 @@ import axios from 'axios';
 import styled from 'styled-components';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import moment from 'moment'; 
+import moment from 'moment';
 
 const ItemContainer = styled.div`
   display: flex;
@@ -33,25 +33,25 @@ const Button = styled.button`
   padding: 8px 12px;
   border: none;
   border-radius: 3px;
-  margin-right: 5px; 
+  margin-right: 5px;
   cursor: pointer;
 `;
 
 const EditButton = styled(Button)`
-  background-color: #ffc107; 
+  background-color: #ffc107;
   color: #fff;
 
   &:hover {
-    background-color: #d39e00; 
+    background-color: #d39e00;
   }
 `;
 
 const DeleteButton = styled(Button)`
-  background-color: #dc3545; 
+  background-color: #dc3545;
   color: #fff;
 
   &:hover {
-    background-color: #c82333; 
+    background-color: #c82333;
   }
 `;
 
@@ -60,8 +60,31 @@ function Item({ item, onItemUpdated, onItemDeleted }) {
   const [nome, setNome] = useState(item.nome);
   const [valor, setValor] = useState(item.valor);
   const [descricao, setDescricao] = useState(item.descricao);
-  const [prazo, setPrazo] = useState(new Date(item.prazo)); 
+  const [prazo, setPrazo] = useState(new Date(item.prazo));
   const [tempoRestante, setTempoRestante] = useState('');
+
+  useEffect(() => {
+    const prazoMoment = moment(item.prazo);
+    const tempoAteExpiracao = prazoMoment.diff(moment());
+
+    const timeoutId = setTimeout(() => {
+      if (Notification.permission === 'granted') {
+        new Notification('Item Expirado!', {
+          body: `O item "${item.nome}" expirou!`,
+        });
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then((permission) => {
+          if (permission === 'granted') {
+            new Notification('Item Expirado!', {
+              body: `O item "${item.nome}" expirou!`,
+            });
+          }
+        });
+      }
+    }, tempoAteExpiracao); 
+
+    return () => clearTimeout(timeoutId);
+  }, [item.prazo, item.nome]); 
 
   useEffect(() => {
     const intervalo = setInterval(() => {
@@ -73,14 +96,14 @@ function Item({ item, onItemUpdated, onItemDeleted }) {
         const duracao = moment.duration(diferenca);
         setTempoRestante(
           `${duracao.days()}d ${duracao.hours()}h ${duracao.minutes()}m ${duracao.seconds()}s`
-        ); 
+        );
       } else {
         setTempoRestante('Expirado!');
         clearInterval(intervalo); 
       }
     }, 1000); 
 
-    return () => clearInterval(intervalo); 
+    return () => clearInterval(intervalo);
   }, [item.prazo]); 
 
   const handleEditClick = () => {
@@ -92,7 +115,7 @@ function Item({ item, onItemUpdated, onItemDeleted }) {
     setNome(item.nome);
     setValor(item.valor);
     setDescricao(item.descricao);
-    setPrazo(new Date(item.prazo)); 
+    setPrazo(new Date(item.prazo));
   };
 
   const handleSaveClick = async () => {
@@ -103,7 +126,7 @@ function Item({ item, onItemUpdated, onItemDeleted }) {
         nome,
         valor,
         descricao,
-        prazo: prazoFormatado, 
+        prazo: prazoFormatado,
       });
 
       onItemUpdated({ ...item, nome, valor, descricao, prazo: prazoFormatado });
@@ -124,16 +147,27 @@ function Item({ item, onItemUpdated, onItemDeleted }) {
 
   return (
     <ItemContainer>
-      {isEditing ? ( 
+      {isEditing ? (
         <div>
-          <Input type="text" value={nome} onChange={(e) => setNome(e.target.value)} />
-          <Input type="number" value={valor} onChange={(e) => setValor(e.target.value)} />
-          <TextArea value={descricao} onChange={(e) => setDescricao(e.target.value)} />
-          <DatePicker 
+          <Input
+            type="text"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+          />
+          <Input
+            type="number"
+            value={valor}
+            onChange={(e) => setValor(e.target.value)}
+          />
+          <TextArea
+            value={descricao}
+            onChange={(e) => setDescricao(e.target.value)}
+          />
+          <DatePicker
             selected={prazo}
             onChange={(date) => setPrazo(date)}
             showTimeSelect
-            dateFormat="yyyy-MM-dd HH:mm" 
+            dateFormat="yyyy-MM-dd HH:mm"
           />
           <EditButton onClick={handleSaveClick}>Salvar</EditButton>
           <DeleteButton onClick={handleCancelClick}>Cancelar</DeleteButton>
@@ -143,8 +177,8 @@ function Item({ item, onItemUpdated, onItemDeleted }) {
           <h3>{item.nome}</h3>
           <p>Valor: {item.valor}</p>
           <p>Descrição: {item.descricao}</p>
-          <p>Prazo: {moment(item.prazo).format('YYYY-MM-DD HH:mm')}</p> 
-          <p>Tempo Restante: {tempoRestante}</p> 
+          <p>Prazo: {moment(item.prazo).format('YYYY-MM-DD HH:mm')}</p>
+          <p>Tempo Restante: {tempoRestante}</p>
           <EditButton onClick={handleEditClick}>Editar</EditButton>
           <DeleteButton onClick={handleDeleteClick}>Excluir</DeleteButton>
         </div>

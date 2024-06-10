@@ -5,13 +5,7 @@ import AddItem from './components/AddItem';
 import styled from 'styled-components';
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background-color: #f0f2f5;
-  font-family: sans-serif;
+  // ... (estilos) ...
 `;
 
 function App() {
@@ -28,12 +22,27 @@ function App() {
   };
 
   useEffect(() => {
-    buscarItens();
+    // Busca itens a cada 5 segundos (ajuste o tempo conforme necessário)
+    const intervalo = setInterval(buscarItens, 5000); 
+    return () => clearInterval(intervalo); 
   }, []);
 
   const handleItemAdded = (newItem) => {
     setItens([...itens, newItem]);
-    buscarItens(); 
+  };
+
+  const handleItemUpdated = (updatedItem) => {
+    setItens((prevItens) =>
+      prevItens.map((item) =>
+        item.id === updatedItem.id ? updatedItem : item
+      )
+    );
+  };
+
+  const handleItemDeleted = (deletedItemId) => {
+    setItens((prevItens) =>
+      prevItens.filter((item) => item.id !== deletedItemId)
+    );
   };
 
   return (
@@ -41,7 +50,11 @@ function App() {
       <div className="App">
         <h1>Timer Itens</h1>
         <AddItem onItemAdded={handleItemAdded} />
-        <ItemList itens={itens} />
+        <ItemList
+          itens={itens}
+          onItemUpdated={handleItemUpdated}
+          onItemDeleted={handleItemDeleted}
+        />
       </div>
     </Container>
   );
