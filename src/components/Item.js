@@ -4,56 +4,88 @@ import styled from 'styled-components';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment';
+import alerta from '../alerta.png';
 
-const ItemContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+const ItemContainer = styled.li`
+  background-color: #212121;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px; 
+`;
+
+const Title = styled.h3`
+  color: #4caf50; 
+  margin-bottom: 10px;
+`;
+
+const Info = styled.p`
+  margin-bottom: 8px;
+  color: #bdbdbd; 
+`;
+
+const EditButton = styled.button`
+  background-color: #ffc107; 
+  color: #fff;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  margin-right: 5px; 
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #d39e00; 
+  }
+`;
+
+const DeleteButton = styled.button`
+  background-color: #f44336; 
+  color: #fff;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #c62828; 
+  }
+`;
+
+const InputGroup = styled.div`
   margin-bottom: 10px;
 `;
 
 const Input = styled.input`
-  padding: 8px;
-  margin-bottom: 8px;
-  border-radius: 3px;
-  border: 1px solid #ccc;
+  width: calc(100% - 16px);
+  padding: 10px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background-color: #1a1a1a;
+  color: #fff;
+
+  &:focus {
+    outline: none;
+    border-color: #4caf50;
+  }
 `;
 
 const TextArea = styled.textarea`
-  padding: 8px;
-  margin-bottom: 8px;
-  border-radius: 3px;
-  border: 1px solid #ccc;
-  height: 60px;
-`;
-
-const Button = styled.button`
-  padding: 8px 12px;
-  border: none;
-  border-radius: 3px;
-  margin-right: 5px;
-  cursor: pointer;
-`;
-
-const EditButton = styled(Button)`
-  background-color: #ffc107;
+  width: calc(100% - 16px); 
+  padding: 10px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background-color: #1a1a1a;
   color: #fff;
+  min-height: 80px;
 
-  &:hover {
-    background-color: #d39e00;
+  &:focus {
+    outline: none;
+    border-color: #4caf50; 
   }
 `;
 
-const DeleteButton = styled(Button)`
-  background-color: #dc3545;
-  color: #fff;
-
-  &:hover {
-    background-color: #c82333;
-  }
-`;
 
 function Item({ item, onItemUpdated, onItemDeleted }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -69,22 +101,24 @@ function Item({ item, onItemUpdated, onItemDeleted }) {
 
     const timeoutId = setTimeout(() => {
       if (Notification.permission === 'granted') {
-        new Notification('Item Expirado!', {
+        new Notification('ITEM expirado', {
           body: `O item "${item.nome}" expirou!`,
+          icon: alerta,
         });
       } else if (Notification.permission !== 'denied') {
         Notification.requestPermission().then((permission) => {
           if (permission === 'granted') {
-            new Notification('Item Expirado!', {
+            new Notification('ITEM expirado', {
               body: `O item "${item.nome}" expirou!`,
+              icon: alerta, 
             });
           }
         });
       }
-    }, tempoAteExpiracao); 
+    }, tempoAteExpiracao);
 
     return () => clearTimeout(timeoutId);
-  }, [item.prazo, item.nome]); 
+  }, [item.prazo, item.nome]);
 
   useEffect(() => {
     const intervalo = setInterval(() => {
@@ -99,12 +133,12 @@ function Item({ item, onItemUpdated, onItemDeleted }) {
         );
       } else {
         setTempoRestante('Expirado!');
-        clearInterval(intervalo); 
+        clearInterval(intervalo);
       }
-    }, 1000); 
+    }, 1000);
 
     return () => clearInterval(intervalo);
-  }, [item.prazo]); 
+  }, [item.prazo]);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -126,10 +160,16 @@ function Item({ item, onItemUpdated, onItemDeleted }) {
         nome,
         valor,
         descricao,
-        prazo: prazoFormatado,
+        prazo: prazoFormatado, 
       });
 
-      onItemUpdated({ ...item, nome, valor, descricao, prazo: prazoFormatado });
+      onItemUpdated({
+        ...item,
+        nome,
+        valor,
+        descricao,
+        prazo: prazoFormatado,
+      });
       setIsEditing(false);
     } catch (error) {
       console.error('Erro ao atualizar item:', error);
@@ -149,36 +189,55 @@ function Item({ item, onItemUpdated, onItemDeleted }) {
     <ItemContainer>
       {isEditing ? (
         <div>
-          <Input
-            type="text"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-          />
-          <Input
-            type="number"
-            value={valor}
-            onChange={(e) => setValor(e.target.value)}
-          />
-          <TextArea
-            value={descricao}
-            onChange={(e) => setDescricao(e.target.value)}
-          />
-          <DatePicker
-            selected={prazo}
-            onChange={(date) => setPrazo(date)}
-            showTimeSelect
-            dateFormat="yyyy-MM-dd HH:mm"
-          />
+          <InputGroup>
+            <label htmlFor={`nome-${item.id}`}>Nome:</label>
+            <Input
+              type="text"
+              id={`nome-${item.id}`}
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+            />
+          </InputGroup>
+          <InputGroup>
+           <label htmlFor={`valor-${item.id}`}>Valor:</label>
+            <Input
+              type="number"
+              id={`valor-${item.id}`}
+              value={valor}
+              onChange={(e) => setValor(e.target.value)}
+            />
+          </InputGroup>
+          <InputGroup>
+            <label htmlFor={`descricao-${item.id}`}>Descrição:</label>
+            <TextArea
+              id={`descricao-${item.id}`}
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
+            />
+          </InputGroup>
+          <InputGroup>
+            <label htmlFor={`prazo-${item.id}`}>Prazo:</label>
+            <DatePicker
+              id={`prazo-${item.id}`}
+              selected={prazo}
+              onChange={(date) => setPrazo(date)}
+              showTimeSelect
+              dateFormat="yyyy-MM-dd HH:mm" 
+            />
+          </InputGroup>
           <EditButton onClick={handleSaveClick}>Salvar</EditButton>
           <DeleteButton onClick={handleCancelClick}>Cancelar</DeleteButton>
         </div>
       ) : (
         <div>
-          <h3>{item.nome}</h3>
-          <p>Valor: {item.valor}</p>
-          <p>Descrição: {item.descricao}</p>
-          <p>Prazo: {moment(item.prazo).format('YYYY-MM-DD HH:mm')}</p>
-          <p>Tempo Restante: {tempoRestante}</p>
+          <Title>{item.nome}</Title>
+          <Info>Valor: {item.valor}</Info>
+          <Info>Descrição: {item.descricao}</Info>
+          <Info>
+            Prazo: {moment(item.prazo).format('DD/MM/YYYY')} -{' '}
+            {moment(item.prazo).format('HH:mm')}
+          </Info>
+          <Info>Tempo Restante: {tempoRestante}</Info>
           <EditButton onClick={handleEditClick}>Editar</EditButton>
           <DeleteButton onClick={handleDeleteClick}>Excluir</DeleteButton>
         </div>

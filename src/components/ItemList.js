@@ -1,22 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Item from './Item';
+import styled from 'styled-components';
 
-function ItemList({ itens, onItemUpdated, onItemDeleted  }) {
-  
+const ListContainer = styled.div`
+  width: 50%;
+  margin: 0 auto;
+`;
+
+const ItemListContainer = styled.ul`
+  list-style: none;
+  padding: 0;
+`;
+
+function ItemList({ itens, onItemUpdated, onItemDeleted }) {
   return (
-    <div>
+    <ListContainer>
       <h2>Lista de Itens</h2>
-      <ul>
+      <ItemListContainer>
         {itens.map((item) => (
           <Item
             key={item.id}
             item={item}
-            onItemUpdated={onItemUpdated} 
-            onItemDeleted={onItemDeleted} 
+            onItemUpdated={onItemUpdated}
+            onItemDeleted={onItemDeleted}
           />
         ))}
-      </ul>
-    </div>
+      </ItemListContainer>
+    </ListContainer>
   );
 }
 
