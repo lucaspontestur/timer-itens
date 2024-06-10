@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
-function AddItem({ onItemAdded }) { 
+function AddItem({ onItemAdded }) {
   const [nome, setNome] = useState('');
   const [valor, setValor] = useState('');
   const [descricao, setDescricao] = useState('');
-  const [prazo, setPrazo] = useState('');
+  const [prazo, setPrazo] = useState(new Date());
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -13,17 +15,29 @@ function AddItem({ onItemAdded }) {
       const response = await fetch('http://localhost:5000/itens', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, valor, descricao, prazo }),
+        body: JSON.stringify({
+          nome,
+          valor,
+          descricao,
+          prazo: prazo.toISOString(), // Formata a data e hora para ISO 8601
+        }),
       });
 
       if (response.ok) {
-        const data = await response.json(); 
+        const data = await response.json();
         setNome('');
         setValor('');
         setDescricao('');
-        setPrazo('');
+        setPrazo(new Date());
 
-        onItemAdded({ id: data.id, nome, valor, descricao, prazo }); 
+        // Passa o prazo formatado para onItemAdded
+        onItemAdded({
+          id: data.id,
+          nome,
+          valor,
+          descricao,
+          prazo: data.prazo,
+        });
       } else {
         console.error('Erro ao adicionar item:', response.status);
       }
@@ -35,7 +49,7 @@ function AddItem({ onItemAdded }) {
   return (
     <div>
       <h2>Adicionar Item</h2>
-      <form onSubmit={handleSubmit}> 
+      <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="nome">Nome:</label>
           <input
@@ -63,12 +77,13 @@ function AddItem({ onItemAdded }) {
           />
         </div>
         <div>
-          <label htmlFor="prazo">Prazo (YYYY-MM-DD):</label>
-          <input
-            type="date"
+          <label htmlFor="prazo">Prazo:</label>
+          <DatePicker
             id="prazo"
-            value={prazo}
-            onChange={(e) => setPrazo(e.target.value)}
+            selected={prazo}
+            onChange={(date) => setPrazo(date)}
+            showTimeSelect
+            dateFormat="yyyy-MM-dd HH:mm" // Formato de data e hora
           />
         </div>
         <button type="submit">Adicionar</button>

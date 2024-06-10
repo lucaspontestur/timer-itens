@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
 const notifier = require('node-notifier');
-const cors = require('cors'); 
+const cors = require('cors');
 const app = express();
 const port = 5000;
 
@@ -13,28 +13,29 @@ const db = new sqlite3.Database('./database.db', (err) => {
   } else {
     console.log('Conectado ao banco de dados SQLite com sucesso.');
     // 2. Criar a tabela "itens" se ela não existir
-    db.run(`
+    db.run(
+      `
       CREATE TABLE IF NOT EXISTS itens (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL,
         valor REAL,
         descricao TEXT,
-        prazo DATE
-      )`, (err) => {
+        prazo DATETIME
+      )`, // Tipo de dado da coluna prazo alterado para DATETIME
+      (err) => {
         if (err) {
           console.error('Erro ao criar a tabela "itens":', err.message);
         } else {
           console.log('Tabela "itens" criada com sucesso.');
         }
-      });
+      }
+    );
   }
 });
-
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
-
 
 app.get('/itens', (req, res) => {
   db.all('SELECT * FROM itens', (err, rows) => {
@@ -48,13 +49,23 @@ app.get('/itens', (req, res) => {
 
 app.post('/itens', (req, res) => {
   const { nome, valor, descricao, prazo } = req.body;
-  db.run('INSERT INTO itens (nome, valor, descricao, prazo) VALUES (?, ?, ?, ?)', [nome, valor, descricao, prazo], function (err) {
-    if (err) {
-      res.status(500).send(err.message);
-    } else {
-      res.json({ id: this.lastID, nome, valor, descricao, prazo });
+  db.run(
+    'INSERT INTO itens (nome, valor, descricao, prazo) VALUES (?, ?, ?, ?)',
+    [nome, valor, descricao, prazo],
+    function (err) {
+      if (err) {
+        res.status(500).send(err.message);
+      } else {
+        res.json({
+          id: this.lastID,
+          nome,
+          valor,
+          descricao,
+          prazo,
+        });
+      }
     }
-  });
+  );
 });
 
 app.put('/itens/:id', (req, res) => {
@@ -67,7 +78,13 @@ app.put('/itens/:id', (req, res) => {
       if (err) {
         res.status(500).send(err.message);
       } else {
-        res.json({ id: itemId, nome, valor, descricao, prazo });
+        res.json({
+          id: itemId,
+          nome,
+          valor,
+          descricao,
+          prazo,
+        });
       }
     }
   );
@@ -85,22 +102,24 @@ app.delete('/itens/:id', (req, res) => {
 });
 
 function verificarItensExpirados() {
-  db.all('SELECT * FROM itens WHERE prazo < date("now")', (err, rows) => {
-    if (err) {
-      console.error('Erro ao buscar itens expirados:', err);
-    } else if (rows.length > 0) {
-      rows.forEach(item => {
-        notifier.notify({
-          title: 'Item Expirado!',
-          message: `O item "${item.nome}" expirou!`,
+  db.all(
+    "SELECT * FROM itens WHERE prazo < datetime('now')", // Comparação com datetime('now')
+    (err, rows) => {
+      if (err) {
+        console.error('Erro ao buscar itens expirados:', err);
+      } else if (rows.length > 0) {
+        rows.forEach((item) => {
+          notifier.notify({
+            title: 'Item Expirado!',
+            message: `O item "${item.nome}" expirou!`,
+          });
         });
-
-      });
+      }
     }
-  });
+  );
 }
 
-setInterval(verificarItensExpirados, 60000);
+setInterval(verificarItensExpirados, 60000); // Verifica a cada minuto
 
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);

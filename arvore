@@ -1,15 +1,18 @@
-timer-itens/
-├── node_modules/
-├── public/
-│   └── ...
-└── src/
-    ├── components/
-    │   ├── AddItem.js
-    │   └── ItemList.js
-    ├── App.css
-    ├── App.js
-    ├── index.css
-    ├── index.js
-    ├── database.sqlite
-    ├── ...
-    └── server.js
+└── 
+    ├── public
+    │   ├── favicon.ico
+    │   ├── index.html
+    │   ├── manifest.json
+    │   └── robots.txt
+    └── src
+        └── components
+            ├── AddItem.js
+            ├── Item.js
+            └── ItemList.js
+├── .gitignore
+├── arvore
+├── database.db
+├── package-lock.json
+├── package.json
+├── README.md
+└── server.js

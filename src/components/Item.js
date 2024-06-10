@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import moment from 'moment'; 
 
 const ItemContainer = styled.div`
   display: flex;
@@ -59,7 +60,28 @@ function Item({ item, onItemUpdated, onItemDeleted }) {
   const [nome, setNome] = useState(item.nome);
   const [valor, setValor] = useState(item.valor);
   const [descricao, setDescricao] = useState(item.descricao);
-  const [prazo, setPrazo] = useState(new Date(item.prazo)); // Converte para Date
+  const [prazo, setPrazo] = useState(new Date(item.prazo)); 
+  const [tempoRestante, setTempoRestante] = useState('');
+
+  useEffect(() => {
+    const intervalo = setInterval(() => {
+      const agora = moment();
+      const prazoMoment = moment(item.prazo);
+      const diferenca = prazoMoment.diff(agora);
+
+      if (diferenca > 0) {
+        const duracao = moment.duration(diferenca);
+        setTempoRestante(
+          `${duracao.days()}d ${duracao.hours()}h ${duracao.minutes()}m ${duracao.seconds()}s`
+        ); 
+      } else {
+        setTempoRestante('Expirado!');
+        clearInterval(intervalo); 
+      }
+    }, 1000); 
+
+    return () => clearInterval(intervalo); 
+  }, [item.prazo]); 
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -70,19 +92,18 @@ function Item({ item, onItemUpdated, onItemDeleted }) {
     setNome(item.nome);
     setValor(item.valor);
     setDescricao(item.descricao);
-    setPrazo(new Date(item.prazo)); // Converte para Date ao cancelar
+    setPrazo(new Date(item.prazo)); 
   };
 
   const handleSaveClick = async () => {
     try {
-      // Converte a data para o formato ISO 8601 antes de enviar
-      const prazoFormatado = prazo instanceof Date ? prazo.toISOString() : prazo;
+      const prazoFormatado = prazo.toISOString();
 
       await axios.put(`http://localhost:5000/itens/${item.id}`, {
         nome,
         valor,
         descricao,
-        prazo: prazoFormatado,
+        prazo: prazoFormatado, 
       });
 
       onItemUpdated({ ...item, nome, valor, descricao, prazo: prazoFormatado });
@@ -103,12 +124,12 @@ function Item({ item, onItemUpdated, onItemDeleted }) {
 
   return (
     <ItemContainer>
-      {isEditing ? (
+      {isEditing ? ( 
         <div>
           <Input type="text" value={nome} onChange={(e) => setNome(e.target.value)} />
           <Input type="number" value={valor} onChange={(e) => setValor(e.target.value)} />
           <TextArea value={descricao} onChange={(e) => setDescricao(e.target.value)} />
-          <DatePicker
+          <DatePicker 
             selected={prazo}
             onChange={(date) => setPrazo(date)}
             showTimeSelect
@@ -122,7 +143,8 @@ function Item({ item, onItemUpdated, onItemDeleted }) {
           <h3>{item.nome}</h3>
           <p>Valor: {item.valor}</p>
           <p>Descrição: {item.descricao}</p>
-          <p>Prazo: {item.prazo}</p>
+          <p>Prazo: {moment(item.prazo).format('YYYY-MM-DD HH:mm')}</p> 
+          <p>Tempo Restante: {tempoRestante}</p> 
           <EditButton onClick={handleEditClick}>Editar</EditButton>
           <DeleteButton onClick={handleDeleteClick}>Excluir</DeleteButton>
         </div>
