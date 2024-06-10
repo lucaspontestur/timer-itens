@@ -22,7 +22,7 @@ function App() {
   };
 
   useEffect(() => {
-    // Busca itens a cada 5 segundos (ajuste o tempo conforme necessário)
+
     const intervalo = setInterval(buscarItens, 5000); 
     return () => clearInterval(intervalo); 
   }, []);

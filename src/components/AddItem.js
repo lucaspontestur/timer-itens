@@ -19,7 +19,7 @@ function AddItem({ onItemAdded }) {
           nome,
           valor,
           descricao,
-          prazo: prazo.toISOString(), // Formata a data e hora para ISO 8601
+          prazo: prazo.toISOString(),
         }),
       });
 
@@ -30,7 +30,7 @@ function AddItem({ onItemAdded }) {
         setDescricao('');
         setPrazo(new Date());
 
-        // Passa o prazo formatado para onItemAdded
+
         onItemAdded({
           id: data.id,
           nome,
@@ -83,7 +83,7 @@ function AddItem({ onItemAdded }) {
             selected={prazo}
             onChange={(date) => setPrazo(date)}
             showTimeSelect
-            dateFormat="yyyy-MM-dd HH:mm" // Formato de data e hora
+            dateFormat="dd-MM-yyyy HH:mm"
           />
         </div>
         <button type="submit">Adicionar</button>

@@ -6,13 +6,13 @@ const cors = require('cors');
 const app = express();
 const port = 5000;
 
-// 1. Criar e conectar ao banco de dados (se ele não existir)
+
 const db = new sqlite3.Database('./database.db', (err) => {
   if (err) {
     console.error('Erro ao abrir o banco de dados:', err.message);
   } else {
     console.log('Conectado ao banco de dados SQLite com sucesso.');
-    // 2. Criar a tabela "itens" se ela não existir
+
     db.run(
       `
       CREATE TABLE IF NOT EXISTS itens (
@@ -21,7 +21,7 @@ const db = new sqlite3.Database('./database.db', (err) => {
         valor REAL,
         descricao TEXT,
         prazo DATETIME
-      )`, // Tipo de dado da coluna prazo alterado para DATETIME
+      )`,
       (err) => {
         if (err) {
           console.error('Erro ao criar a tabela "itens":', err.message);
@@ -103,7 +103,7 @@ app.delete('/itens/:id', (req, res) => {
 
 function verificarItensExpirados() {
   db.all(
-    "SELECT * FROM itens WHERE prazo < datetime('now')", // Comparação com datetime('now')
+    "SELECT * FROM itens WHERE prazo < datetime('now')",
     (err, rows) => {
       if (err) {
         console.error('Erro ao buscar itens expirados:', err);
@@ -119,7 +119,7 @@ function verificarItensExpirados() {
   );
 }
 
-setInterval(verificarItensExpirados, 60000); // Verifica a cada minuto
+setInterval(verificarItensExpirados, 60000);
 
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);
