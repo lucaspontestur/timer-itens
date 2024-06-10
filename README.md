@@ -1,70 +1,83 @@
-# Getting Started with Create React App
+Timer Itens
+Timer Itens é uma aplicação web que permite aos usuários criar, visualizar, atualizar e excluir itens com um prazo de expiração. Quando um item expira, uma notificação do navegador é exibida.
+Tecnologias Utilizadas
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Frontend:
 
-## Available Scripts
+React.js
+styled-components
+axios
+react-datepicker
+moment.js
 
-In the project directory, you can run:
 
-### `npm start`
+Backend:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Node.js
+Express.js
+SQLite
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Estrutura do Projeto
 
-### `npm run build`
+public/:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+index.html: Template HTML para a aplicação React.
+Outros arquivos estáticos (favicon, manifest.json, etc.)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+src/:
 
-### `npm run eject`
+App.js: Componente principal da aplicação React.
+index.js: Ponto de entrada da aplicação React.
+components/:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+AddItem.js: Formulário para adicionar novos itens.
+Item.js: Componente para visualizar e manipular um item individual.
+ItemList.js: Componente para renderizar a lista de itens.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+styles/:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+global.js: Estilos globais da aplicação.
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+alerta.png: Ícone usado nas notificações.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
+server.js: Servidor backend Express.js.
+package.json: Configurações e dependências do projeto.
+database.db: Banco de dados SQLite.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Funcionalidades
 
-### Analyzing the Bundle Size
+Criar Item: Adicione um novo item com nome, valor, descrição e prazo.
+Listar Itens: Visualize todos os itens em tempo real.
+Atualizar Item: Modifique os detalhes de um item existente.
+Excluir Item: Remova um item da lista.
+Countdown: Veja o tempo restante para cada item expirar.
+Notificações: Receba uma notificação do navegador quando um item expirar.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Como Rodar o Projeto
 
-### Making a Progressive Web App
+Clone o repositório:
+git clone https://github.com/seu-usuario/timer-itens.git
+cd timer-itens
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Instale as dependências:
+npm install
 
-### Advanced Configuration
+Inicie o servidor backend e a aplicação React simultaneamente:
+npm run dev
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Acesse a aplicação em http://localhost:3000.
 
-### Deployment
+Rodando Frontend e Backend Separadamente
+Se preferir rodar separadamente:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Inicie o servidor backend:
+node server.js
 
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Em um novo terminal, inicie a aplicação React:
+npm start
